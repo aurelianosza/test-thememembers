@@ -16,11 +16,11 @@ return new class extends Migration
             $table->string("payment_hash");
             $table->string("payment_method");
             $table->string("status");
-            $table->decimal("amount", total: 10, places: 4);
+            $table->decimal("amount", total: 8, places: 2);
             $table->foreignId("buyer_id")
                 ->references("id")
                 ->on("buyers");
-            $table->decimal("change", total: 10, places: 4)
+            $table->decimal("change", total: 8, places: 2)
                 ->nullable();
             $table->timestamps();
         });

@@ -23,10 +23,10 @@ class ProductStoreRequest extends FormRequest
     public function rules(): array
     {
         return [
-            "code"          => ["required", "string", "max:255", "unique:products,code"],
-            "name"          => ["required", "string", "max:255"],
+            "code"          => ["required", "string", "max:16", "unique:products,code"],
+            "name"          => ["required", "string", "max:64"],
             "description"   => ["present",  "string", "max:255"],
-            "price"         => ["required", "gt:0", "numeric", "max:99999"]
+            "price"         => ["required", "numeric","gt:0", "lt:99999"]
         ];
     }
 
@@ -37,6 +37,14 @@ class ProductStoreRequest extends FormRequest
             "name"          => $this->name,
             "description"   => $this->description,
             "price"         => $this->price,
+        ];
+    }
+
+    public function attributes()
+    {
+        return [
+            "code"      => __("validation.attributes.product_code"),
+            "price"     => __("validation.attributes.price"),
         ];
     }
 }

@@ -15,8 +15,8 @@ return new class extends Migration
             $table->id();
 
             $table->string("code")->unique()->notNullable();
-            $table->string("name");
-            $table->decimal("price", total: 10, places: 4);
+            $table->string("name", 64);
+            $table->decimal("price", total: 8, places: 2);
             $table->string("description");
 
             $table->timestamps();

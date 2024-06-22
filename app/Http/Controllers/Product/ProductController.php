@@ -40,7 +40,7 @@ class ProductController extends Controller
             ->create($request->productPayload());
         
         return $response
-            ->success()
+            ->created()
             ->setData([
                 "message"   => __("messages.cruds.created_with_success", [
                     "model"     => __("models.". Product::class . ".name")

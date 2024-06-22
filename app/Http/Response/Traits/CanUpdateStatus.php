@@ -18,6 +18,11 @@ trait CanUpdateStatus {
        return $this->setStatus(Response::HTTP_OK);
     }
 
+    public function created() : self
+    {
+       return $this->setStatus(Response::HTTP_CREATED);
+    }
+
     public function unauthorized() : self
     {
         return $this->setStatus(Response::HTTP_FORBIDDEN);

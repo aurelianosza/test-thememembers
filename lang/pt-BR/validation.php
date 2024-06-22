@@ -223,6 +223,7 @@ return [
         'money'     => 'dinheiro',
         'products_list' => 'lista de produtos',
         'product_code'  => 'código do produto',
-        'item_amount'   => 'quantidade de itens'
+        'item_amount'   => 'quantidade de itens',
+        "price"         => 'preço'
     ],
 ];

@@ -15,7 +15,8 @@ class ApiResponse {
     const STATUS_UNATHORIZED        = 'unauthorized';
 
     const STATUSES = [
-        Response::HTTP_OK                   => self::STATUS_SUCCESS,     
+        Response::HTTP_OK                   => self::STATUS_SUCCESS, 
+        Response::HTTP_CREATED              => self::STATUS_SUCCESS, 
         Response::HTTP_BAD_REQUEST          => self::STATUS_ERROR,       
         Response::HTTP_FORBIDDEN            => self::STATUS_UNATHORIZED,
         Response::HTTP_UNPROCESSABLE_ENTITY => self::STATUS_ERROR,
