@@ -3,21 +3,22 @@
 namespace App\Providers;
 
 use App\Interfaces\PaymentGatewayInterface;
+use App\Traits\HasPaymentMethodService;
 use Illuminate\Support\ServiceProvider;
 
 class PaymentServiceProvider extends ServiceProvider
 {
+    use HasPaymentMethodService;
+
     /**
      * Register services.
      */
     public function register(): void
     {
-        $this->app->bind(PaymentGatewayInterface::class, function ($app) {            
-            $methods = config("payments.gateways");
-            $selectedGateway = $app->request->input("payment_method");
-            $gatewayClass = $methods[$selectedGateway];
+        $this->app->bind(PaymentGatewayInterface::class, function ($app) {     
+          
+            return $this->paymentService($app->request->input("payment_method"));
 
-            return $app->make($gatewayClass);
         });
     }
 

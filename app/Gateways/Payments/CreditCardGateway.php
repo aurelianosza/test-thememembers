@@ -5,6 +5,7 @@ namespace App\Gateways\Payments;
 use App\Interfaces\PaymentGatewayInterface;
 use App\Models\PaymentLog;
 use App\Traits\SaveLogTrait;
+use Illuminate\Support\Facades\Storage;
 
 class CreditCardGateway implements PaymentGatewayInterface
 {
@@ -13,5 +14,11 @@ class CreditCardGateway implements PaymentGatewayInterface
     {
         $this->saveLog( "Cartão de Credito");
         return "Payd with Credit card";
+    }
+
+    public function paymentDocument()
+    {
+        // $file = Storage::disk('payment_documents')
+        //     ->put('', '');
     }
 }

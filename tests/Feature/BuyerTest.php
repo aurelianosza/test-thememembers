@@ -13,12 +13,32 @@ class BuyerTest extends TestCase
      */
     public function test_buyer_success(): void
     {
+        $buyerData = [
+            "document" => "61873947046",
+            "email" => "test@test.com",
+        ];
+
+        Buyer::where("document", $buyerData["document"])->delete();
+        $response = $this->post("api/buyer", [
+            ...$buyerData
+        ]);
+        $response->assertStatus(201);
+
+        Buyer::where("document", $buyerData["cpf"])->delete();
+    }
+
+    public function test_buyer_fail_on_document_has_invalid_format() : void
+    {
         Buyer::where("document", "61873947046")->delete();
         $response = $this->post("api/buyer", [
             "document" => "61873947046",
             "email" => "test@test.com",
         ]);
-        $response->assertStatus(201);
+        $response->assertStatus(422);
+
+        $response->assertSessionHasErrors([
+            'document' => __('validation.cpf.with_pointing')
+        ]);
 
         Buyer::where("document", "61873947046")->delete();
     }

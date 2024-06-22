@@ -44,6 +44,22 @@ return [
             'throw' => false,
         ],
 
+        'postable_csv_model_files'    => [
+            'driver' => 'local',
+            'root' => storage_path('app/models/csv_files'),
+            // 'url' => env('APP_URL').'/storage',
+            'visibility' => 'public',
+            'throw' => false,
+        ],
+
+        'payment_documents' => [
+            'driver' => 'local',
+            'root' => storage_path('app/payment_documents'),
+            // 'url' => env('APP_URL').'/storage',
+            'visibility' => 'public',
+            'throw' => false,
+        ],
+
         's3' => [
             'driver' => 's3',
             'key' => env('AWS_ACCESS_KEY_ID'),

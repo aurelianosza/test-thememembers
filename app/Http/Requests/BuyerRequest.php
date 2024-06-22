@@ -23,10 +23,8 @@ class BuyerRequest extends FormRequest
     public function rules(): array
     {
         return [
-            "email" => "required|string",
-            "document" => ["required", "string", new CpfValidation], 
+            "email"     => ["required", "string"],
+            "document"  => ["required", "string", new CpfValidation], 
         ];
     }
-
-    
 }

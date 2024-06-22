@@ -5,8 +5,10 @@ namespace App\Services;
 use App\Interfaces\PaymentGatewayInterface;
 use App\Jobs\EmailNotificationsJob;
 use App\Models\Payment;
+use App\Models\Product;
 use App\Traits\SaveLogTrait;
 use Exception;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 
 class PaymentService
@@ -17,6 +19,7 @@ class PaymentService
     protected $buyerService;
     protected $productService;
     protected $paymentGateway;
+
     public function __construct(
         Payment $payment,
         BuyerService $buyerService,
@@ -29,15 +32,51 @@ class PaymentService
         $this->paymentGateway = $paymentGateway;
     }
 
+    public function create(array $data)
+    {
+        DB::transaction(function() use ($data) {
+
+            $payment = Payment::create([
+                "payment_hash"      => md5(serialize($data)),
+                "payment_method"    => $data["payment_method"],
+                "status"            => Payment::STATUS_PENDING,
+                "amount"            => $data["amount"],
+                "buyer_id"          => $data["buyer_id"]
+            ]);
+
+            $productList = Product::query()
+                ->whereIn("code", array_map(fn($item) => $item['code'], $data['products']))
+                ->get();
+
+            $payment
+                ->products()
+                ->sync(
+                    array_reduce($data["products"], function($carry, $item) use ($productList) {
+
+                        $product = $productList->first(fn($productItem) => $productItem->code == $item['code']);
+
+                        return [
+                            ...$carry,
+                            $product->id    => [
+                                "amount"        => $item["amount"],
+                                "unitary_price" => $product->price
+                            ]
+                        ];
+                    }, [])
+                );
+        });
+
+    }
+
     function processPayment(array $data): Payment
     {
         try {
             $buyer = $this->buyerService->findByDocument($data["buyer_document"]);
-            if ($buyer == null) {
+            if (!$buyer) {
                 throw new Exception("Buyer not found.");
             }
             $product = $this->productService->findByCode($data["product_id"]);
-            if ($product == null) {
+            if (!$product) {
                 throw new Exception("Product not found.");
             }
 

@@ -13,11 +13,15 @@ return new class extends Migration
     {
         Schema::create("payments", function (Blueprint $table) {
             $table->id();
+            $table->string("payment_hash");
             $table->string("payment_method");
             $table->string("status");
             $table->decimal("amount", total: 10, places: 4);
-            $table->integer("buyer_id");
-            $table->string("product_id");
+            $table->foreignId("buyer_id")
+                ->references("id")
+                ->on("buyers");
+            $table->decimal("change", total: 10, places: 4)
+                ->nullable();
             $table->timestamps();
         });
     }

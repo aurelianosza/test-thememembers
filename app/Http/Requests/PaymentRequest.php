@@ -2,7 +2,6 @@
 
 namespace App\Http\Requests;
 
-use App\Enums\PaymentTypesEnum;
 use App\Rules\CpfValidation;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -24,15 +23,25 @@ class PaymentRequest extends FormRequest
      */
     public function rules(): array
     {
+        // dd(array_keys(config('payments.gateways')));
+
         return [
-            "amount" => "required|numeric|gte:0",
-            "payment_method" => ["required", Rule::enum(PaymentTypesEnum::class)],
-            "product_id" => "required|exists:products,code", //Aceita apenas produtos existentes
-            "buyer_document" => ["required", "string", new CpfValidation], 
-            /*  Uma outra opção seria importar uma biblioteca externa de validação de CPF como a "geekcom/validator-docs" 
-                porém decidi fazer a validação na mão. */
+            "amount"            => ["required", "numeric", "gt:0"],
+            "payment_method"    => ["required", Rule::in(array_keys(config('payments.gateways')))],
+            "products"          => ["required", "array", "min:1"], //Aceita apenas produtos existentes
+            "products.*.code"   => ["required", "exists:products,code"],
+            "products.*.amount" => ["required", "gt:0"],
+            "buyer_document"    => ["required", "string", new CpfValidation, "exists:buyers,document"], 
         ];
     }
 
-    
+    public function attributes()
+    {
+        return [
+            "amount"            => __("validation.attributes.money"),
+            "products"          => __("validation.attributes.products_list"),
+            "products.*.code"   => __("validation.attributes.product_code"),
+            "products.*.code"   => __("validation.attributes.item_amount"),
+        ];
+    }
 }
