@@ -13,7 +13,8 @@ return new class extends Migration
     {
         Schema::create("buyers", function (Blueprint $table) {
             $table->id();
-            $table->string("document")->unique();
+            $table->string("name");
+            $table->string("document", 14)->unique();
             $table->string("email")->unique();
             $table->timestamps();
         });

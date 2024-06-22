@@ -12,6 +12,7 @@ class Buyer extends Model
     protected $table = "buyers";
 
     protected $fillable = [
+        "name",
         "document",
         "email"
     ];

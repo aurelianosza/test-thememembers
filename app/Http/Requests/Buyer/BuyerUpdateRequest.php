@@ -1,11 +1,12 @@
 <?php
 
-namespace App\Http\Requests;
+namespace App\Http\Requests\Buyer;
 
 use App\Rules\CpfValidation;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
-class BuyerRequest extends FormRequest
+class BuyerUpdateRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -23,8 +24,9 @@ class BuyerRequest extends FormRequest
     public function rules(): array
     {
         return [
-            "email"     => ["required", "string"],
-            "document"  => ["required", "string", new CpfValidation], 
+            "name"      => ["required", "string", "max:255"],
+            "email"     => ["required", "string", Rule::unique("buyers", "email")->ignore($this->route('buyer')->id)],
+            "document"  => ["required", "string", Rule::unique("buyers", "document")->ignore($this->route('buyer')->id), new CpfValidation], 
         ];
     }
 }

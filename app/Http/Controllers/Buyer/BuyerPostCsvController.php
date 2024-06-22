@@ -1,26 +1,26 @@
 <?php
 
-namespace App\Http\Controllers\Product;
+namespace App\Http\Controllers\Buyer;
 
 use App\Http\Controllers\Controller;
 use App\Http\Response\ApiResponse;
-use App\Models\Product;
-use App\Services\ProductService;
+use App\Models\Buyer;
+use App\Services\BuyerService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
-class ProductPostCsvController extends Controller
+class BuyerPostCsvController extends Controller
 {
-    const CONTROLLER_PREFIX = "/products/post-csv";
+    const CONTROLLER_PREFIX = "/buyers/post-csv";
 
     public function __invoke(
         Request $request,
-        ProductService $service,
+        BuyerService $service,
         ApiResponse $response
     )
-    {
+    {            
         $file = Storage::drive("postable_csv_model_files")
-            ->put('products', $request->file("file"));
+            ->put('buyers', $request->file("file"));
 
         $service->postCsv($file);
 
@@ -28,9 +28,10 @@ class ProductPostCsvController extends Controller
             ->success()
             ->setData([
                 "message"   => __("messages.cruds.file_csv_uploaded", [
-                    "model"     => __("models." . Product::class . ".name")
+                    "model"     => __("models." . Buyer::class . ".name")
                 ])
             ])
             ->respond();
+        
     }
 }

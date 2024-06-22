@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\PaymentRequest;
+use App\Http\Response\ApiResponse;
 use App\Interfaces\PaymentGatewayInterface;
 use App\Jobs\ProcessPaymentJob;
 use App\Models\Payment;
@@ -17,7 +18,8 @@ class PaymentController extends Controller
     public function store(
         PaymentRequest  $request,
         PaymentService  $paymentService,
-        BuyerService    $buyerService
+        BuyerService    $buyerService,
+        ApiResponse     $response
     )
     {
         // $data = $request->all();
@@ -32,12 +34,16 @@ class PaymentController extends Controller
                 'buyer_id'  => $buyer->id,
                 ...$request->all()
             ]);
+
+        
     }
 
-    public function showDocument(Payment $payment)
+    public function showDocument(
+        Payment $payment
+    )
     {
         $document = $this->paymentService($payment->payment_method)
-            ->paymentDocument();
+            ->paymentDocument($payment);
 
         echo $document;
     }

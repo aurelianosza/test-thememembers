@@ -67,6 +67,8 @@ return [
 
     'timezone' => env('APP_TIMEZONE', 'UTC'),
 
+    'money_prefix'   => env('MONEY_PREFIX'),
+
     /*
     |--------------------------------------------------------------------------
     | Application Locale Configuration
