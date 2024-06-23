@@ -13,6 +13,8 @@ return new class extends Migration
     {
         Schema::create("payments_logs", function (Blueprint $table) {
             $table->id();
+            $table->foreignId("payment_id")
+                ->constrained("payments");
             $table->string("message");
             $table->timestamps();
         });

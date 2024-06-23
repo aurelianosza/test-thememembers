@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Mail;
+namespace App\Services\Payments\Mail;
 
+use App\Services\Payments\Interfaces\CanBePaydInterface;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
@@ -9,19 +10,17 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
-class NotifyPayment extends Mailable
+class MailNotifyFailPayment extends Mailable implements ShouldQueue
 {
-    use Queueable, SerializesModels;
+    use Queueable,
+        SerializesModels;
 
-    /**
-     * Create a new message instance.
-     */
+    protected CanBePaydInterface $payment;
 
-     protected array $notifyData;
-
-    public function __construct(array $notifyData)
+    public function __construct(CanBePaydInterface $payment)
     {
-        $this->notifyData = $notifyData;
+        $this->payment = $payment;
+        $this->onQueue("emails");
     }
 
     /**
@@ -40,8 +39,10 @@ class NotifyPayment extends Mailable
     public function content(): Content
     {
         return new Content(
-            view: "mail.default_mail_template",
-            with: ["notifyData" => $this->notifyData]
+            view: "mail.failed_mail_template",
+            with: [
+                "payment" => $this->payment
+            ]
         );
     }
 

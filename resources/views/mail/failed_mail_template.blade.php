@@ -5,7 +5,10 @@
   <title>Payment notification</title>
 </head>
 
-<body style="margin: 0">
+<body
+  style="margin: 0"
+  lang="pt-BR"
+>
   <span style="margin: 0 auto; 
     display: block;
     padding: 20px;
@@ -33,8 +36,9 @@
               padding: 40px 20px;
               list-style: none;
               border-radius: 8px;
-              margin: 0;">
-              There was an error processing the payment payment of ${{ $notifyData["amount"] }} made by the user with document: {{ $notifyData["document"] }}.
+              margin: 0;"
+            >
+              There was an error processing the payment payment of {{ moneyFormat($payment->paymentData()["amount"]) }} made by the user with document: {{ $payment->paymentData()["document"] }}.
             </ul>
           </td>
         </tr>

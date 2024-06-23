@@ -2,19 +2,14 @@
 
 namespace App\Services;
 
-use App\Interfaces\PaymentGatewayInterface;
 use App\Jobs\EmailNotificationsJob;
+use App\Jobs\ProcessPaymentJob;
 use App\Models\Payment;
 use App\Models\Product;
-use App\Traits\SaveLogTrait;
-use Exception;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Mail;
 
 class PaymentService
 {
-    use SaveLogTrait;
-
     protected $payment;
     protected $buyerService;
     protected $productService;
@@ -24,20 +19,18 @@ class PaymentService
         Payment $payment,
         BuyerService $buyerService,
         ProductService $productService,
-        PaymentGatewayInterface $paymentGateway
     ) {
         $this->payment = $payment;
         $this->buyerService = $buyerService;
         $this->productService = $productService;
-        $this->paymentGateway = $paymentGateway;
     }
 
-    public function create(array $data)
+    public function create(array $data) : Payment
     {
-        DB::transaction(function() use ($data) {
+        $payment = DB::transaction(function() use ($data) {
 
             $payment = Payment::create([
-                "payment_hash"      => md5(serialize($data)),
+                "payment_hash"      => "",
                 "payment_method"    => $data["payment_method"],
                 "status"            => Payment::STATUS_PENDING,
                 "amount"            => $data["amount"],
@@ -56,53 +49,37 @@ class PaymentService
                         $product = $productList->first(fn($productItem) => $productItem->code == $item['code']);
 
                         return [
+                            "{$product->id}"    => [
+                                "amount"            => $item["amount"],
+                                "unitary_price"     => $product->price
+                            ],
                             ...$carry,
-                            $product->id    => [
-                                "amount"        => $item["amount"],
-                                "unitary_price" => $product->price
-                            ]
                         ];
                     }, [])
                 );
+
+            return $payment;
         });
 
+        return $payment;
     }
 
-    function processPayment(array $data): Payment
+    function processPayment(Payment $payment)
     {
-        try {
-            $buyer = $this->buyerService->findByDocument($data["buyer_document"]);
-            if (!$buyer) {
-                throw new Exception("Buyer not found.");
-            }
-            $product = $this->productService->findByCode($data["product_id"]);
-            if (!$product) {
-                throw new Exception("Product not found.");
-            }
+        ProcessPaymentJob::dispatch($payment, $payment->payment_method)
+            ->onQueue("payment");
 
-            $paymentData = [
-                "payment_method" => $data["payment_method"],
-                "status" => "ok",
-                "amount" => $data["amount"],
-                "buyer_id" => $buyer->id,
-                "product_id" => $product->id
-            ];
+        //envia email
+        // EmailNotificationsJob::dispatch($buyer, $paymentData["amount"]);
+    
+    }
 
-            //Processa o pagamento no gateway referente ao tipo de pagamento
-            $gatewayResponse =  $this->paymentGateway->pay($paymentData);
-            dump($gatewayResponse);
-
-            //registra no BD
-            $paymentResponse = $this->payment->create($paymentData);
-
-            //envia email
-            EmailNotificationsJob::dispatch($buyer, $paymentData["amount"]);
-
-            return $paymentResponse;
-        } catch (\Throwable $th) {
-            $this->saveLog("Erro: " . $th->getMessage());
-            dump("Erro: " . $th->getMessage());
-            return null;
-        }
+    function aprovesBoleto(array $paymentHashs)
+    {
+        Payment::query()
+            ->whereIn("payment_hash", $paymentHashs)
+            ->update([
+                "status" => Payment::STATUS_SUCCESS
+            ]);
     }
 }

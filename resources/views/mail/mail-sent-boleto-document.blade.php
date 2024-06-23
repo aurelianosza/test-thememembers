@@ -1,8 +1,10 @@
 <!DOCTYPE html>
-<html>
+<html
+  lang="pt-BR"
+>
 
 <head>
-  <title>Payment notification</title>
+  <title>Boleto para pagamento</title>
 </head>
 
 <body style="margin: 0">
@@ -34,7 +36,11 @@
               list-style: none;
               border-radius: 8px;
               margin: 0;">
-              A payment of {{ moneyFormat($payment->paymentData()["amount"]) }} was made by the user with document: {{ $payment->paymentData()["document"] }}.
+              <a
+                href="{{ route('payments.document', [$payment->paymentData()['payment_hash']]) }}"
+              >
+                Clique aqui
+              </a> e faça o download do documento para pagamento.
             </ul>
           </td>
         </tr>

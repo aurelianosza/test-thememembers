@@ -1,21 +1,24 @@
 <?php 
 
-namespace App\Gateways\Payments;
+namespace App\Services\Payments;
 
-use App\Interfaces\PaymentGatewayInterface;
-use App\Models\Payment;
+use App\Services\Payments\Interfaces\PaymentInterface;
+use App\Services\Payments\Interfaces\CanBePaydInterface;
+use App\Services\Payments\Mail\MailSentBoletoDocument;
 use App\Traits\SaveLogTrait;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Mail;
 
-class BoletoGateway implements PaymentGatewayInterface
+class BoletoPaymentService implements PaymentInterface
 {
-    use SaveLogTrait;
-
-    public function pay(array $data) : string
+    public function pay(CanBePaydInterface $payment) : void
     {
-        $this->saveLog("Boleto");
-        return "Payment with Boleto";
+        $payment
+            ->logPayment("Request to pay {$payment->paymentData()["payment_hash"]} with boleto.");
+
+        Mail::to($payment->paymentData()["email"])
+            ->queue(new MailSentBoletoDocument($payment));
     }
 
     public function getServicePayload() : array
@@ -43,12 +46,17 @@ class BoletoGateway implements PaymentGatewayInterface
         ];
     }
 
-    public function paymentDocument(Payment $payment)
+    public function paymentDocument(CanBePaydInterface $payment)
     {
+        if($payment->paymentData()["status"] == "success")
+        {
+            return view("payments.boleto-allready-paid");
+        }
+
         $data = Http::withQueryParameters([
             ...$this->getServicePayload(),
-            "valor_documento"       => $payment->amount,
-            "data_processamento"    => $payment->created_at->format('Y-m-d'),
+            "valor_documento"       => $payment->paymentData()["amount"],
+            "data_processamento"    => $payment->paymentData()["processment_date"],
             "vencimento"            => Carbon::today()->add("days", config("payments.boleto.config.vencimento_em_dias"))->format("Y-m-d"),
 
         ])

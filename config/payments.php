@@ -1,14 +1,9 @@
 <?php
 
 return [
-    'gateways' => [
-        'boleto'            => App\Gateways\Payments\BoletoGateway::class,
-        'pix'               => App\Gateways\Payments\PixGateway::class,
-        'credit_card'       => App\Gateways\Payments\CreditCardGateway::class,
-    ],
     "services"  => [
         "boleto"            => [
-            "service_class"     => App\Gateways\Payments\BoletoGateway::class,
+            "service_class"     => App\Services\Payments\BoletoPaymentService::class,
             // Esta é uma simulação com um fake da internet, simulando a geração de um bolero.
             "config"            => [
                 "base_url"              => env("BOLETO_SERVICE_BASE_URL"),
@@ -35,6 +30,7 @@ return [
             ]
         ],
         "pix" => [
+            "service_class"     => App\Services\Payments\PixPaymentService::class,
             "config"    => [
                 "base_url"              => env("PIX_SERVICE_BASE_URL"),
                 "numero_banco"          => env("PIX_SERVICE_BANCO"),
@@ -42,6 +38,9 @@ return [
                 "chave_de_acesso"       => env("PIX_SERVICE_ACCESS_KEY"),
                 "chave_secreta"         => env("PIX_SERVICE_PRIVATE_KEY"),
             ]
+        ],
+        "credit_card"   => [
+            "service_class"     => App\Services\Payments\CreditCardPaymentService::class,
         ]
     ]
 ];

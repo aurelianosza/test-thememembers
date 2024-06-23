@@ -15,6 +15,8 @@ class PaymentController extends Controller
 {
     use HasPaymentMethodService;
 
+    const CONTROLLER_PREFIX = "/payments";
+
     public function store(
         PaymentRequest  $request,
         PaymentService  $paymentService,
@@ -22,20 +24,23 @@ class PaymentController extends Controller
         ApiResponse     $response
     )
     {
-        // $data = $request->all();
-        // ProcessPaymentJob::dispatch($data, $paymentService);
-
-        // return $this->processing("Payment request received and is being processed.");
-
         $buyer = $buyerService->findByDocument($request->buyer_document);
 
-        $paymentService
+        $payment = $paymentService
             ->create([
                 'buyer_id'  => $buyer->id,
                 ...$request->all()
             ]);
 
-        
+        $paymentService->processPayment($payment);
+
+        return $response
+            ->success()
+            ->setData([
+                "message"   => __("models." . Payment::class . ".messages.payment_request"),
+                "payment"   => $payment
+            ])
+            ->respond();
     }
 
     public function showDocument(

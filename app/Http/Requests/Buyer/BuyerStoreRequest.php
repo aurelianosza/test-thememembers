@@ -17,8 +17,8 @@ class BuyerStoreRequest extends FormRequest
     {
         return [
             "name"      => ["required", "string", "max:255"],
-            "email"     => ["required", "string", "unique:buyers"],
-            "document"  => ["required", "string", "unique:buyers", new CpfValidation], 
+            "email"     => ["required", "email", "max:255", "unique:buyers"],
+            "document"  => ["required", "unique:buyers", new CpfValidation], 
         ];
     }
 }

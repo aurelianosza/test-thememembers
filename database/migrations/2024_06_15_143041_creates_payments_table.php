@@ -23,6 +23,7 @@ return new class extends Migration
             $table->decimal("change", total: 8, places: 2)
                 ->nullable();
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

@@ -1,8 +1,16 @@
+@php
+
+use Illuminate\Support\Carbon;
+
+@endphp
+
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="refresh" content="1">
     <title>Comprovante de Pagamento</title>
     <style>
         body {
@@ -46,15 +54,16 @@
 <body>
     <div class="receipt">
         <h1>Comprovante de Pagamento</h1>
-        <p><strong>Data:</strong> {{ $payment->created_at->format('d/m/Y') }}</p>
-        <p><strong>Hora:</strong> {{ $payment->created_at->format('H:i:s') }}</p>
+        <p><strong>Data:</strong> {{ Carbon::create($payment->paymentData()["processment_date"])->format('d/m/Y') }}</p>
+        <p><strong>Hora:</strong> {{ Carbon::create($payment->paymentData()["processment_date"])->format('H:i:s') }}</p>
         <p><strong>Cartão:</strong> **** **** **** 1234</p>
         <p><strong>Nome:</strong> {{ $payment->buyer->name }} </p>
         <p><strong>Descrição:</strong> Compra de Eletrônicos</p>
         <div class="amount">
-            {{ moneyFormat($payment->amount) }}
+            {{ moneyFormat($payment->paymentData()["amount"]) }}
         </div>
-        <p><strong>Autenticação:</strong> {{ $payment->payment_hash }} </p>
+        <p><strong>Situação de pagamento:</strong> {{ $payment->getStatusName() }} </p>
+        <p><strong>Autenticação:</strong> {{ $payment->paymentData()["payment_hash"] }} </p>
         <div class="footer">
             Obrigado por sua compra!
         </div>

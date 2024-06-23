@@ -27,7 +27,7 @@ class PaymentRequest extends FormRequest
 
         return [
             "amount"            => ["required", "numeric", "gt:0"],
-            "payment_method"    => ["required", Rule::in(array_keys(config('payments.gateways')))],
+            "payment_method"    => ["required", Rule::in(array_keys(config('payments.services')))],
             "products"          => ["required", "array", "min:1"], //Aceita apenas produtos existentes
             "products.*.code"   => ["required", "exists:products,code"],
             "products.*.amount" => ["required", "gt:0"],
