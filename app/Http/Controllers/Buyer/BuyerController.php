@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Buyer;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Buyer\BuyerStoreRequest;
 use App\Http\Requests\Buyer\BuyerUpdateRequest;
+use App\Http\Resources\BuyerResource;
 use App\Http\Response\ApiPaginationResponse;
 use App\Http\Response\ApiResponse;
 use App\Services\BuyerService;
@@ -25,7 +26,7 @@ class BuyerController extends Controller
             ->search($request->only("query", "order_by", "direction"));
 
         return $response
-            ->setData($productListQuery)
+            ->setData($productListQuery, BuyerResource::class)
             ->respond();
     }
 
@@ -40,7 +41,7 @@ class BuyerController extends Controller
         return $response
             ->created()
             ->setData([
-                'buyer' => $buyer
+                'buyer' => new BuyerResource($buyer)
             ])
             ->respond();       
     }
@@ -56,7 +57,7 @@ class BuyerController extends Controller
                 "message"   => __("messages.cruds.found_success", [
                     "model"     => __("models." . Buyer::class. ".name")
                 ]),
-                "product"   => $buyer
+                "product"   => new BuyerResource($buyer)
             ])
             ->respond();
     }
@@ -69,7 +70,7 @@ class BuyerController extends Controller
     )
     {
         $buyerService 
-            ->update($buyer, $request->productPayload());
+            ->update($buyer, $request->all());
 
         return $response
             ->success()
@@ -77,17 +78,17 @@ class BuyerController extends Controller
                 "message"   => __("messages.cruds.updated_with_success", [
                     "model"     => __("models.". Buyer::class . ".name")
                 ]),
-                "product"   => $buyer
+                "product"   => new BuyerResource($buyer)
             ])
             ->respond();
     }
 
     public function destroy(
-        Buyer $product,
+        Buyer $buyer,
         ApiResponse $response
     )
     {
-        $product->delete();
+        $buyer->delete();
 
         return $response
             ->success()
@@ -95,7 +96,7 @@ class BuyerController extends Controller
                 "message"   => __("messages.cruds.deleted_with_success", [
                     "model"     => __("models." . Buyer::class . ".name")
                 ]),
-                "product"   => $product
+                "product"   => new BuyerResource($buyer)
             ])
             ->respond();
     }

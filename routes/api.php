@@ -1,7 +1,8 @@
 <?php
 
-use App\Http\Controllers\BuyerController;
+use App\Http\Controllers\Buyer\BuyerController;
 use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\Buyer\BuyerPostCsvController;
 use App\Http\Controllers\Product\ProductPostCsvController;
 use App\Http\Controllers\Product\ProductController;
 use Illuminate\Http\Request;
@@ -11,9 +12,10 @@ Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
 
-Route::post("/payment", [PaymentController::class, "store"]);
-Route::get("/payment/{payment}/document", [PaymentController::class, "showDocument"]);
-
+Route::post(
+    ProductPostCsvController::CONTROLLER_PREFIX,
+    ProductPostCsvController::class
+);
 
 Route::group([
     "controller"    => ProductController::class,
@@ -21,13 +23,12 @@ Route::group([
     "prefix"        => ProductController::CONTROLLER_PREFIX
 ], function() {
 
-    Route::post("/post-csv", ProductPostCsvController::class);
 
     Route::get('/', 'index')
         ->name('index');
 
     Route::post('/', 'store')
-        ->name('post');
+        ->name('store');
 
     Route::get('/{product}', 'show')
         ->name('show');
@@ -40,7 +41,44 @@ Route::group([
 });
 
 
-// Route::post("/product", [ProductController::class, "store"]);
-// Route::patch("/product/{product}", [ProductController::class, "update"]);
+Route::post(
+    BuyerPostCsvController::CONTROLLER_PREFIX,
+    BuyerPostCsvController::class
+);
 
-Route::post("/buyer", [BuyerController::class, "store"]);
+Route::group([
+    "controller"    => BuyerController::class,
+    "as"            => "buyers.",
+    "prefix"        => BuyerController::CONTROLLER_PREFIX
+], function() {
+
+    Route::get('/', 'index')
+        ->name('index');
+
+    Route::post('/', 'store')
+        ->name('store');
+
+    Route::get('/{buyer}', 'show')
+        ->name('show');
+
+    Route::patch('/{buyer}', 'update')
+        ->name('update');
+
+    Route::delete('/{buyer}', 'destroy')
+        ->name('destroy');
+
+});
+
+Route::group([
+    "controller"    => PaymentController::class,
+    "prefix"        => PaymentController::CONTROLLER_PREFIX,
+    "as"            => "payments."
+], function() {
+
+    Route::post("/", "store")
+        ->name("store");
+
+    Route::get("/{payment}/document", "showDocument")
+        ->name("document");
+
+});

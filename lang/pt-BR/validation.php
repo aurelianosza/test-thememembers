@@ -195,6 +195,7 @@ return [
         'mobile'    => 'celular',
         'month'     => 'mês',
         'name'      => 'nome',
+        'email'     => 'email',
         'zipcode'   => 'cep',
         'company_name'   => 'razão social',
         'neighborhood' => 'bairro',

@@ -20,8 +20,6 @@ return new class extends Migration
             $table->foreignId("buyer_id")
                 ->references("id")
                 ->on("buyers");
-            $table->decimal("change", total: 8, places: 2)
-                ->nullable();
             $table->timestamps();
             $table->softDeletes();
         });
